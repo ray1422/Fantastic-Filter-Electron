@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="libs/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" href="libs/bootstrap/select.css" />
+    <link rel="stylesheet" href="libs/fontawesome/css/all.min.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/color.css" />
+    <!--
+        TODO: support Dark Mode
+    -->
+    <script>if (typeof module === 'object') { window.module = module; module = undefined; }; </script>
+    <script>const $ = window.$ = require('jquery');</script>
+    <script>require('popper.js');</script>
+    <script>require('bootstrap');</script>
+    <script>require('bootstrap-select');</script>
+    <script src="./libs/emodal/emodal.min.js"></script>
+    <script src="js/main.js"></script>
+    <script>if (window.module) module = window.module;</script>
+</head>
+
+<body>
+    <div id="window_wrapper">
+        <div id="titlebar">
+            <h5 id="window_title">幻想濾鏡 Fantastic Filter</h5>
+            <!--minimize, full/restore , close-->
+            <div id="titlebar_buttons">
+                <a href="#" id="win_min"></a>
+                <a href="#" id="win_max"></a>
+                <a href="#" id="win_close"></a>
+            </div>
+        </div>
+        <div id="main_wrapper" class="container-fluid">
+            <!-- toolbar -->
+            <div class="row" id="toolbar_wrapper">
+                <div id="toolbar" class="col-12">
+                    <div class="float-left">
+                        <!-- [open image] [select model] [run]      [save] -->
+                        <button id="open_image" type="button" class="btn btn-primary"><i class="fas fa-folder-open"
+                                aria-hidden="true"></i> 開啟圖片</button>
+                        <span class="blank d-none d-md-inline-block" style="width: calc(3vw + 10px);"></span>
+                        <div id="model_wrapper">
+                            <select id="model" class="selectpicker">
+                                <option value="">請選擇模型...</option>
+                                
+                            </select></div>
+                        <span class="blank d-none d-md-inline-block" style="width: .25rem;"></span>
+                        <button id="run" type="button" class="btn btn-primary"><i class="fas fa-play"
+                                aria-hidden="true"></i> 開始處理</button>
+                    </div>
+                    <div id="toolbar_right">
+                        <button id="save" type="button" class="btn btn-primary"><i class="fas fa-save"
+                                aria-hidden="true"></i> 儲存照片</button>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <!-- preview area -->
+            <div class="row">
+                <div class="col" id="preview_wrapper">
+                    <div id="peek_origin_tips">
+                        <i class="fas fa-info-circle"></i> 長按顯示原始圖片
+                    </div>
+                    <!-- using background instead of <img /> -->
+                    <div id="origin_image_wrapper" class="image_preview">
+                        <img src="images/welcome.png" />
+                    </div>
+                    <div id="enhanced_image_wrapper" class="image_preview">
+                        <img />
+                    </div>
+                    <div id="image_enhancing_animation">
+                        <div class="d-flex justify-content-center">
+                            <div class="spinner-border text-light" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <span>這不會花費太多時間...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

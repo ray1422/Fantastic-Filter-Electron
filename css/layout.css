@@ -1,0 +1,149 @@
+*, .bootstrap-select .dropdown-toggle:focus, .bootstrap-select>select.mobile-device:focus+.dropdown-toggle {
+    outline: none !important;
+}
+
+.blank {
+    height: 1px;
+}
+
+body {
+    -webkit-app-region: drag;
+}
+
+body * {
+    -webkit-app-region: no-drag;
+}
+
+/* titlebar */
+
+#titlebar {
+    width: 100%;
+    height: 2.39rem;
+    line-height: 2.39rem;
+    text-align: center;
+    position: relative;
+    background: black;
+    color: white;
+    -webkit-app-region: drag;
+}
+
+#titlebar h5 {
+    display: inline;
+    font-weight: 600;
+    -webkit-app-region: drag;
+}
+
+#titlebar #titlebar_buttons {
+    position: absolute;
+    width: 7.5rem;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    text-align: right;
+    padding-right: .7em;
+}
+
+#titlebar #titlebar_buttons a {
+    width: 1rem;
+    height: 1rem;
+    display: inline-block;
+    background-color: white;
+    border-radius: .5rem;
+    line-height: 2.39rem;
+    -webkit-app-region: no-drag;
+    margin-left: 2px;
+}
+
+/* main */
+
+#main_wrapper {
+    width: 100%;
+    height: calc(100vh - 2.39rem);
+    background: #eeeeee;
+}
+
+#toolbar {
+    padding: .3rem .7rem .5rem;
+    line-height: 2.5rem;
+}
+
+#toolbar .btn:not(.dropdown-toggle) {
+    max-width: 20vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#model_wrapper {
+    display: inline-block;
+}
+
+#model_wrapper .dropdown.bootstrap-select {
+    max-width: 25vw;
+    /* overflow: hidden; */
+}
+
+#toolbar_right {
+    overflow: hidden;
+    min-width: 5rem;
+    text-align: right;
+}
+
+#preview_wrapper {
+    padding: 1em .7em 1em;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#preview_wrapper .image_preview img {
+    margin: auto;
+    display: block;
+    position: relative;
+}
+
+/* #preview_wrapper:hover #peek_origin_tips {
+    opacity: 1;
+} */
+
+#peek_origin_tips:hover {
+    opacity: .3;
+    filter: blur(3px);
+}
+
+#peek_origin_tips {
+    position: absolute;
+    top: .5rem;
+    padding: .5rem;
+    right: 10px;
+    height: 3rem;
+    line-height: 2rem;
+    background: rgba(50, 50, 50, .8);
+    color: white;
+    z-index: 3;
+    opacity: .6;
+    transition: 300ms;
+}
+
+#enhanced_image_wrapper img {
+    opacity: 0;
+    /* would be hidden until enhancing task done. */
+}
+
+#image_enhancing_animation {
+    position: absolute;
+    background: rgba(30, 30, 30, .8);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    
+}
+
+#image_enhancing_animation span {
+    color: white;
+    padding-left: 1rem;
+    font-size: 1.5rem;
+}
