@@ -4,6 +4,7 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="libs/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" href="libs/bootstrap/bootstrap-dark.css" />
     <link rel="stylesheet" href="libs/bootstrap/select.css" />
     <link rel="stylesheet" href="libs/fontawesome/css/all.min.css" />
     <link rel="stylesheet" href="css/layout.css" />
@@ -14,6 +15,7 @@
     <script>if (typeof module === 'object') { window.module = module; module = undefined; }; </script>
     <script>const $ = window.$ = require('jquery');</script>
     <script>require('popper.js');</script>
+    <script>require('bootstrap');</script>
     <script>require('bootstrap');</script>
     <script>require('bootstrap-select');</script>
     <script src="./libs/emodal/emodal.min.js"></script>
@@ -38,7 +40,7 @@
                 <div id="toolbar" class="col-12">
                     <div class="float-left">
                         <!-- [open image] [select model] [run]      [save] -->
-                        <button id="open_image" type="button" class="btn btn-primary"><i class="fas fa-folder-open"
+                        <button id="open_image" type="button" class="btn btn-dark"><i class="fas fa-folder-open"
                                 aria-hidden="true"></i> 開啟圖片</button>
                         <span class="blank d-none d-md-inline-block" style="width: calc(3vw + 10px);"></span>
                         <div id="model_wrapper">
@@ -47,11 +49,11 @@
                                 
                             </select></div>
                         <span class="blank d-none d-md-inline-block" style="width: .25rem;"></span>
-                        <button id="run" type="button" class="btn btn-primary"><i class="fas fa-play"
+                        <button id="run" type="button" class="btn btn-dark"><i class="fas fa-play"
                                 aria-hidden="true"></i> 開始處理</button>
                     </div>
                     <div id="toolbar_right">
-                        <button id="save" type="button" class="btn btn-primary"><i class="fas fa-save"
+                        <button id="save" type="button" class="btn btn-dark"><i class="fas fa-save"
                                 aria-hidden="true"></i> 儲存照片</button>
                     </div>
                 </div>
@@ -67,9 +69,9 @@
                     </div>
                     <!-- using background instead of <img /> -->
                     <div id="origin_image_wrapper" class="image_preview">
-                        <img src="images/welcome.png" />
+                        <img src="images/welcome.png" draggable="false" />
                     </div>
-                    <div id="enhanced_image_wrapper" class="image_preview">
+                    <div id="enhanced_image_wrapper" class="image_preview" draggable="false">
                         <img />
                     </div>
                     <div id="image_enhancing_animation">

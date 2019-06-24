@@ -1,0 +1,47 @@
+html, body {
+    border-radius: 1em;
+}
+#win_min {
+    background: linear-gradient(165deg, #ffec92 0%, #f89300 100%);
+}
+
+#win_max {
+    background: linear-gradient(165deg, #00ff2b 0%, #00a03d 100%);
+}
+
+#win_close {
+    background: linear-gradient(165deg, #ff7777 0%, #f80000 100%);
+}
+#titlebar_buttons a{
+    transition-duration: .1s;
+}
+#titlebar_buttons a:hover {
+    transform: scale(1.15);
+    filter: brightness(1.1);
+}
+
+.modal-header {
+    border-bottom: 1px solid #474849;
+}
+
+.modal-content {
+    background: #2c2c2c;
+}
+
+.modal-footer {
+    border-top: none;
+}
+
+#preview_wrapper img {
+    box-shadow: #4e4e4e 9px 7px 0px;
+}
+
+.modal-header .close {
+    color: white;
+}
+
+#titlebar {
+    background: linear-gradient(to bottom, #5f5f5f 0%, #000000 100%);
+    text-shadow: 1px 1px 2px rgba(50, 50, 50, .9);
+}
+

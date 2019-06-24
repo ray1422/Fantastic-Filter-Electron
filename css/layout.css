@@ -9,6 +9,9 @@
 body {
     -webkit-app-region: drag;
 }
+body, input, select, option, button {
+    font-family: -apple-system, "蘋方黑-繁", "Noto Sans CJK TC", "微軟正黑體";
+}
 
 body * {
     -webkit-app-region: no-drag;
@@ -59,7 +62,6 @@ body * {
 #main_wrapper {
     width: 100%;
     height: calc(100vh - 2.39rem);
-    background: #eeeeee;
 }
 
 #toolbar {
@@ -101,6 +103,8 @@ body * {
     margin: auto;
     display: block;
     position: relative;
+    user-select: none;
+    -webkit-user-drag: none;
 }
 
 /* #preview_wrapper:hover #peek_origin_tips {

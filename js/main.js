@@ -20,7 +20,13 @@ $(document).ready(function () {
     let originWidth = 1920;
     let previewHeight = $("#preview_wrapper").innerHeight() - 45;
     let previewWidth = $("#preview_wrapper").innerWidth() - 10;
-
+    function setBG() {
+        $("#model_wrapper button").removeClass("btn-light").addClass("btn-dark");
+        if (!$("#model_wrapper button").lnegth > 0) setTimeout(() => {
+            setBG();
+        }, 0)
+    }
+    setBG();
     $("#open_image").click(function () {
         enhanced = false;
         $("#enhanced_image_wrapper img").css("opacity", 0);
@@ -85,7 +91,7 @@ $(document).ready(function () {
             // TODO: update image. the following would be remove and replace with the real c++ hook
 
             $("#enhanced_image_wrapper img").attr('src', $("#origin_image_wrapper img").attr('src'));
-            $("#enhanced_image_wrapper img").css('filter', 'drop-shadow(16px 16px 20px red) invert(75%)')
+            
 
         }, 5000);
     });
@@ -125,6 +131,7 @@ $(document).ready(function () {
             opacity: 1
         }, 200);
     });
+    $("#enhanced_image_wrapper img").mouseout(() => { $("#enhanced_image_wrapper img").mouseup() })
 
     $("#win_min").click(function () {
         remote.getCurrentWindow().minimize();
