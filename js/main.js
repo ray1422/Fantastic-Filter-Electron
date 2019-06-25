@@ -1,12 +1,25 @@
 const FF_DEFAULT_TITLE = "幻想濾鏡 Fantastic Filter";
 const remote = require('electron').remote;
+const { Menu, MenuItem } = remote;
 const fs = require('fs');
+const storage = require('electron-localstorage');
 var ipc = require("electron").ipcRenderer;
 
 let imagePath, modelPath;
 let enhanced = false;
 let models = [];
 $(document).ready(function () {
+
+    loadSettings();
+    const menu = new Menu()
+    menu.append(new MenuItem({ label: '複製', click() { console.log('TODO: copy image') } }))
+    menu.append(new MenuItem({ label: '貼上', click() { console.log('TODO: copy image') } }))
+    menu.append(new MenuItem({ label: '設定', click() { openSetting() } }))
+
+    $(window).contextmenu((e) => {
+        e.preventDefault();
+        menu.popup({ window: remote.getCurrentWindow() })
+    })
 
     fs.readdir("./pretrained/", (err, files) => {
         files.forEach(file => {
@@ -91,10 +104,66 @@ $(document).ready(function () {
             // TODO: update image. the following would be remove and replace with the real c++ hook
 
             $("#enhanced_image_wrapper img").attr('src', $("#origin_image_wrapper img").attr('src'));
-            
+
 
         }, 5000);
     });
+
+    function openSetting() {
+        $("#settings").modal('show');
+    }
+
+    function updateSetting(item, value) {
+
+        console.log(item + ': ' + value)
+        storage.setItem('setting_' + item, value)
+        switch (item) {
+            case 'system_border':
+                if (value) {
+                    $("#window_wrapper").css({
+                        'borderRadius': 0,
+                        'paddingBottom': $("#titlebar").outerHeight() / 5 * 4,
+                        'paddingTop': $("#titlebar").outerHeight() / 5,
+                    })
+                    $("#titlebar").hide();
+                }
+                break;
+        }
+    }
+    function loadSettings() {
+        const settingFlags = [
+            'system_border',
+        ]
+        settingFlags.forEach(settingOrg => {
+            setting = s(settingOrg);
+            var settingVal = storage.getItem(setting);
+            var $elem = $("#" + setting);
+
+            if (settingVal != null) {
+                updateSetting(settingOrg, settingVal);
+                switch ($elem.attr('type')) {
+                    case 'checkbox':
+                        $("#" + setting).attr("checked", settingVal == true);
+                        break;
+                    default:
+                        $("#" + setting).val(settingVal);
+                }
+                $elem.change(function () {
+                    switch ($elem.attr('type')) {
+                        case 'checkbox':
+                            updateSetting(settingOrg, $(this).is(":checked") == true);
+                            break;
+                        default:
+                            updateSetting(settingOrg, $(this).val());
+                    }
+
+                })
+            }
+        });
+        function s(a) {
+            return 'setting_' + a;
+        }
+    }
 
     $("#save").click(function () {
         if (!enhanced) {
@@ -138,7 +207,8 @@ $(document).ready(function () {
     });
 
     $("#win_max").click(function () {
-        remote.getCurrentWindow().maximize();
+        let window = remote.getCurrentWindow();
+        window.isMaximized() ? window.unmaximize() : window.maximize();
     });
 
     $("#win_close").click(function () {
@@ -187,7 +257,7 @@ function openFile(title, filters, callback, failCallback) {
         title: title,
         filters: filters
     }, function (filePaths) {
-        if (filePaths == undefined) return failCallback();
+        if (filePaths == undefined) if (failCallback != undefined) return failCallback(); else return;
         callback(filePaths);
     })
 }

@@ -2,7 +2,7 @@ const {
     app,
     BrowserWindow,
 } = require('electron')
-
+const storage = require('electron-localstorage');
 const path = require('path')
 const url = require('url')
 
@@ -26,7 +26,7 @@ function createWindow() {
         width: 800,
         height: 500,
         maximizable: false,
-        frame: false,
+        frame: storage.getItem("setting_system_border") == true,
         transparent: true,
         webPreferences: {
             nodeIntegration: true

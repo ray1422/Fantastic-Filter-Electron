@@ -1,5 +1,10 @@
 html, body {
-    border-radius: 1em;
+    background: transparent;
+}
+#window_wrapper {
+    background: #2c2c2c;
+    border-radius: 7px;
+    overflow: hidden;
 }
 #win_min {
     background: linear-gradient(165deg, #ffec92 0%, #f89300 100%);
