@@ -138,7 +138,8 @@ $(document).ready(function () {
     });
 
     $("#win_max").click(function () {
-        remote.getCurrentWindow().maximize();
+        let window=remote.getCurrentWindow();
+        window.isMaximized() ? window.unmaximize() : window.maximize();
     });
 
     $("#win_close").click(function () {
