@@ -1,7 +1,9 @@
 node_modules/
 .vscode
 pretrained/*.pb
+
 __pycache__
 backend/build
 backend/dist/*
 .idea
+venv

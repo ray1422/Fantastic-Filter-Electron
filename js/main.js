@@ -97,14 +97,15 @@ $(document).ready(function () {
         $("#width").val(width)
         $("#height").val(height)
         $("#height, #width").attr("disabled", true)
-        client.invoke("resize", height + "," + width, function () {
+        console.log(width + "," + height)
+        client.invoke("resize", width + "," + height, function () {
             $("#height, #width").attr("disabled", false)
         })
     }
     $("#model").change(function () {
         modelPath = $("#model :selected").val();
         if (modelPath == 'OPEN_OTHER') {
-            openFile("請選擇模型..", [{ name: '預訓練模型', extensions: ['*.pb'] }],
+            openFile("請選擇模型..", [{ name: '預訓練模型', extensions: ['pb'] }],
                 function (localModelPath) {
                     modelPath = localModelPath;
                     loadModel(modelPath);
@@ -238,9 +239,6 @@ $(document).ready(function () {
             ]
         }, function (filePath) {
             if (filePath == undefined) return;
-            if (getFileExtension(filePath) != 'jpg' || getFileExtension(filePath) != 'png') {
-                filePath += '.png';
-            }
             client.invoke("save_image", filePath, function (error, res) {
                 if (!error)
                     eModal.alert("儲存成功！", "")
@@ -358,7 +356,6 @@ function loadModel(modelPath) {
     });
     client.invoke("load_model", modelPath, (error, res) => {
         setTimeout(eModal.close, 1000)
-
         if (error) {
             console.log(error)
             alert("sth went wrong!")

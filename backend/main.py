@@ -41,6 +41,8 @@ class FantasticFilterPRC(object):
         return True
 
     def load_model(self, model_path):
+        if isinstance(model_path, list):
+            model_path = str(model_path[0])
         if self.enhancer is not None:
             self.enhancer.close()
         self.enhancer = Enhancer()

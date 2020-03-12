@@ -48,11 +48,13 @@ class Enhancer:
 
             except Exception as e:
                 try:
-                    self._sess.close()
-                    raise e
+                    if self._sess is not None:
+                        self._sess.close()
+                    print(e)
+                    
                 except Exception as e:
                     self._sess = None
-                    raise e
+                    print(e)
 
     def close(self):
         self._sess.close()

@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron --enable-transparent-visuals --disable-gpu . "
+    "start": "electron . ",
+    "build": "electron-packager . \"Fantastic Filter Electron\" --platform=win32 --arch=x64  --icon=images/favicon.ico --asar --out=dist --ignore=node_modules/electron-*,venv/ --version-string.CompanyName=\"Ray's Another World\""
   },
   "keywords": [
     "Fantastic",
@@ -24,6 +25,7 @@
     "zerorpc": "^0.9.8"
   },
   "devDependencies": {
+    "electron-packager": "^14.2.1",
     "electron-rebuild": "^1.10.1"
   }
 }

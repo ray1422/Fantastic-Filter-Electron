@@ -28,7 +28,9 @@ function createWindow() {
         icon: __dirname + '/images/favicon.png',
         frame: storage.getItem("setting_system_border") == true,
         transparent: true,
-        skipTaskbar: true,
+        backgroundColor: "#00000000",
+//        'node-integration': true,
+//        skipTaskbar: true,
         toolbar: false,
         webPreferences: {
             nodeIntegration: true
@@ -43,7 +45,7 @@ function createWindow() {
     }))
 
     // Open DevTools.
-    win.webContents.openDevTools()
+//    win.webContents.openDevTools()
     // When Window Close.
     win.on('closed', () => {
         win = null

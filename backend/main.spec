@@ -4,10 +4,10 @@ block_cipher = None
 
 
 a = Analysis(['main.py'],
-             pathex=['/home/ray1422/workspace/Fantastic-Filter-Electron/backend'],
+             pathex=['C:\\Users\\Ray\\workspace\\Fantastic-Filter-Electron\\backend'],
              binaries=[],
              datas=[],
-             hiddenimports=['astor'],
+             hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
              excludes=[],

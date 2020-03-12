@@ -9,7 +9,8 @@ const API = {
     },
     start: () => {
         const child_process = require('child_process')
-        let pyPort = 9999;
+        let pyPort = 1024 + ~~(30000 * Math.random());
+        pyPort = 9999
         if (global['pyProc']) {
             global['pyProc'].kill();
 
@@ -18,7 +19,9 @@ const API = {
             API.client.close()
         }
         global['pyProc'] = null;
-        let script = path.join(__dirname, '..', 'backend', 'dist', 'main')
+        let exec_file = process.platform == "win32" ? "main.exe" : "main";
+        let script = path.join(__dirname, '..', 'backend', 'dist', exec_file)
+        console.log(script)
         while (global['pyProc'] == null) {
             pyPort++;
             global['pyProc'] = child_process.execFile(script, [pyPort,], function (err, stdout, stderr) {
