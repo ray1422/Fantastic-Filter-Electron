@@ -1,15 +1,24 @@
 const FF_DEFAULT_TITLE = "幻想濾鏡 Fantastic Filter";
 const remote = require('electron').remote;
+const app = remote.app
 const { Menu, MenuItem } = remote;
 const fs = require('fs');
+const { ipcRenderer } = require('electron')
 const storage = require('electron-localstorage');
+let client;
+const API = require("./js/api")
 var ipc = require("electron").ipcRenderer;
 
 let imagePath, modelPath;
 let enhanced = false;
 let models = [];
-$(document).ready(function () {
 
+API.start();
+client = global["client"]
+console.log(client)
+// For #1
+
+$(document).ready(function () {
     loadSettings();
     const menu = new Menu()
     menu.append(new MenuItem({ label: '複製', click() { console.log('TODO: copy image') } }))
@@ -24,7 +33,7 @@ $(document).ready(function () {
     fs.readdir("./pretrained/", (err, files) => {
         files.forEach(file => {
             if (!(file[file.length - 1] == 'b' && file[file.length - 2] == 'p' && file[file.length - 3] == '.')) return;
-            var modelPath = "./pretrained/" + file;
+            var modelPath = __dirname + "/pretrained/" + file;
             $("#model").append($('<option>', { value: modelPath, text: file.replace('.pb', '') }))
         });
         $("#model").append($('<option>', { value: 'OPEN_OTHER', text: '選擇其他模型..' }))
@@ -46,20 +55,52 @@ $(document).ready(function () {
         openFile("請選擇一張圖片..", [
             { name: '照片', extensions: ['jpg', 'png', 'gif'] }
         ], function (filePath) {
+            client.invoke("set_image", filePath, (error, res) => {
+                if (error) {
+                    alert("載入圖片錯誤！")
+                }
+                else {
+                    console.log(res)
+                }
+            })
             console.log("open image: " + filePath);
             var originImage = new Image();
-
             originImage.onload = function () {
                 originHeight = originImage.height;
                 originWidth = originImage.width;
                 $("#origin_image_wrapper img").attr("src", originImage.src);
                 updateSize();
-                console.log({ height: originHeight, width: originWidth });
+                $("#width").val(originWidth)
+                $("#height").val(originHeight)
+
             }
             originImage.src = filePath;
             imagePath = filePath;
         });
     });
+    $("#width").change(function () {
+        let r = $(this).val() / originWidth
+        let width = $(this).val()
+        let height = originHeight * r
+        resize(height, width)
+    })
+    $("#height").change(function () {
+        let r = $(this).val() / originHeight
+        let height = $(this).val()
+        let width = originWidth * r
+        resize(height, width)
+    })
+
+    function resize(height, width) {
+        height = ~~(height - height % 4)
+        width = ~~(width - width % 4)
+        $("#width").val(width)
+        $("#height").val(height)
+        $("#height, #width").attr("disabled", true)
+        client.invoke("resize", height + "," + width, function () {
+            $("#height, #width").attr("disabled", false)
+        })
+    }
     $("#model").change(function () {
         modelPath = $("#model :selected").val();
         if (modelPath == 'OPEN_OTHER') {
@@ -78,35 +119,54 @@ $(document).ready(function () {
         }
     });
     $("#run").click(function () {
+        if (!modelPath) {
+            eModal.alert('請先選擇模型！', 'Hmm..');
+            return
+        }
+        if (!imagePath) {
+            eModal.alert('請先開啟圖片！', 'Hmm..');
+            return
+        }
         $("#image_enhancing_animation").animate({
             opacity: 1
         }, 500)
-        // c++ hook.
-        enhanced = true;
-        setTimeout(() => {
-            const doneNotification = new Notification('處理完成！', {
-                body: '你的圖片已經成功增強囉～',
-                icon: 'images/favicon.png',
-                requireInteraction: true
-            })
-            //TODO: sound.
+        client.invoke("enhance", null, function (error, res) {
+            (function foo() {
+                client.invoke("get_enhanced_image", null, function (error, res) {
+                    if (error) {
+                        eModal.alert("出錯了！可能是圖片太大了，要不要縮小點呢？", "Hmm")
+                        reset()
+                        return
+                    }
+                    if (!res) {
+                        setTimeout(foo, 1000);
+                        return;
+                    }
 
-            $("#image_enhancing_animation").animate({
-                opacity: 0
-            }, 500)
-            $("#enhanced_image_wrapper img").animate({
-                opacity: 1
-            }, 500)
-            setTimeout(() => {
-                doneNotification.close()
-            }, 5000);
+                    const image_url = 'data:image/jpeg;base64,' + res;
+                    enhanced = true;
+                    const doneNotification = new Notification('處理完成！', {
+                        body: '你的圖片已經成功增強囉～',
+                        icon: 'images/favicon.png',
+                        requireInteraction: true
+                    })
+                    //TODO: sound.
 
-            // TODO: update image. the following would be remove and replace with the real c++ hook
+                    $("#image_enhancing_animation").animate({
+                        opacity: 0
+                    }, 500)
+                    $("#enhanced_image_wrapper img").animate({
+                        opacity: 1
+                    }, 500)
+                    setTimeout(() => {
+                        doneNotification.close()
+                    }, 5000);
 
-            $("#enhanced_image_wrapper img").attr('src', $("#origin_image_wrapper img").attr('src'));
+                    $("#enhanced_image_wrapper img").attr('src', image_url);
+                });
+            })();
 
-
-        }, 5000);
+        })
     });
 
     function openSetting() {
@@ -181,7 +241,14 @@ $(document).ready(function () {
             if (getFileExtension(filePath) != 'jpg' || getFileExtension(filePath) != 'png') {
                 filePath += '.png';
             }
-            alert("TODO SAVE: " + filePath)
+            client.invoke("save_image", filePath, function (error, res) {
+                if (!error)
+                    eModal.alert("儲存成功！", "")
+                else {
+                    emodal.alert("sth went wrong.")
+                }
+            })
+            // alert("TODO SAVE: " + filePath)
         })
         function getFileExtension(filename) {
             return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
@@ -248,6 +315,23 @@ $(document).ready(function () {
     }
     updateSize();
     $(window).resize(updateSize)
+
+    function reset() {
+        modelPath = "";
+        imagePath = "";
+        $("#model option").attr("selected", false)
+        $("#model option:nth(0)").attr("selected", true)
+        $("#model").selectpicker('refresh');
+        $("#image_enhancing_animation").animate({
+            opacity: 0
+        }, 500)
+        $("#origin_image_wrapper img").attr("src", "images/welcome.png")
+        API.start();
+        client = global["client"]
+
+    }
+    global['reset'] = reset
+
 })
 
 
@@ -264,19 +348,25 @@ function openFile(title, filters, callback, failCallback) {
 
 function loadModel(modelPath) {
     console.log("model: " + modelPath);
-    eModal.alert(
-        {
-            message: '<div class="d-flex justify-content-center"><div class="spinner-border" role="status"></div></div>',
-            title: "載入模型中..",
-            size: 'sm',
-            useBin: false,
+    eModal.alert({
+        message: '<div class="d-flex justify-content-center"><div class="spinner-border" role="status"></div></div>',
+        title: "載入模型中..",
+        size: 'sm',
+        useBin: false,
 
-            buttons: []
-        });
-    setTimeout(_ => {
-        //callback
-        eModal.close();
-    }, 5000);
+        buttons: []
+    });
+    client.invoke("load_model", modelPath, (error, res) => {
+        setTimeout(eModal.close, 1000)
+
+        if (error) {
+            console.log(error)
+            alert("sth went wrong!")
+        }
+        else {
+
+        }
+    })
 
 }
 
@@ -286,3 +376,11 @@ function setWindowTitle(title) {
     }
     $("#window_title").text(title);
 }
+
+
+
+const path = require('path')
+
+let pyProc = null
+let pyPort = null
+

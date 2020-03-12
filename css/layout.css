@@ -94,7 +94,7 @@ body * {
 }
 
 #model_wrapper {
-    display: inline-block;
+    display: inline-flex;
 }
 
 #model_wrapper .dropdown.bootstrap-select {
@@ -106,6 +106,28 @@ body * {
     overflow: hidden;
     min-width: 5rem;
     text-align: right;
+}
+
+#size_wrapper {
+    max-width: 10em;
+    vertical-align: bottom
+}
+
+#size_wrapper>input {
+    height: 36px;
+    background-color: #353535;
+    color: white;
+}
+#size_wrapper>input::placeholder {
+    color: #ededed;
+}
+#size_wrapper>input::-webkit-outer-spin-button, #size_wrapper>input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#size_wrapper>input[type=number] {
+    -moz-appearance: textfield;
 }
 
 #preview_wrapper {
@@ -167,7 +189,6 @@ body * {
     padding-left: 1rem;
     font-size: 1.5rem;
 }
-
 
 #settings .row .col:nth-child(2) {
     text-align: right;
