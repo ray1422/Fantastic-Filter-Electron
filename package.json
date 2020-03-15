@@ -1,31 +1,57 @@
 {
-  "name": "fantastic-filter-electron",
-  "version": "0.0.1",
-  "description": "the cross-platform desktop application for Fantastic Filter, the greatest program to enhance your photo shot in night on mobile device.",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron . ",
-    "build": "electron-packager . \"Fantastic Filter Electron\" --platform=win32 --arch=x64  --icon=images/favicon.ico --asar --out=dist --ignore=node_modules/electron-*,venv/ --version-string.CompanyName=\"Ray's Another World\""
-  },
-  "keywords": [
-    "Fantastic",
-    "Filter"
-  ],
-  "author": "Ray",
-  "license": "MIT",
-  "dependencies": {
-    "bootstrap": "^4.3.1",
-    "bootstrap-select": "^1.13.10",
-    "electron": "^5.0.5",
-    "electron-localstorage": "^1.0.5",
-    "font-awesome": "^4.7.0",
-    "jquery": "^3.4.1",
-    "popper.js": "^1.15.0",
-    "zerorpc": "^0.9.8"
-  },
-  "devDependencies": {
-    "electron-packager": "^14.2.1",
-    "electron-rebuild": "^1.10.1"
-  }
+    "name": "fantastic-filter-electron",
+    "version": "0.0.1",
+    "description": "跨平台的「幻想濾鏡」桌面應用實現，用以提昇手機夜拍照片的畫質。",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "electron . "
+    },
+    "keywords": [
+        "Fantastic",
+        "Filter"
+    ],
+    "author": "Ray's Another World Studio",
+    "license": "MIT",
+    "dependencies": {
+        "bootstrap": "^4.3.1",
+        "bootstrap-select": "^1.13.10",
+        "electron-store": "^5.1.1",
+        "font-awesome": "^4.7.0",
+        "jquery": "^3.4.1",
+        "popper.js": "^1.15.0",
+        "zerorpc": "^0.9.8"
+    },
+    "devDependencies": {
+        "electron": "^5.0.5",
+        "electron-builder": "^22.4.1",
+        "electron-packager": "^14.2.1",
+        "electron-rebuild": "^1.10.1"
+    },
+    "build": {
+        "extraFiles": [
+            "./pretrained/**",
+            "./backend/dist/**"
+        ],
+        "appId": "io.github.ray1422.fantastic_filter_electron",
+        "productName": "Fantastic Filter Electron",
+        "nsis": {
+            "oneClick": false,
+            "allowToChangeInstallationDirectory": true,
+            "displayLanguageSelector": true
+        },
+        "mac": {
+            "target": [
+                "dmg",
+                "zip"
+            ]
+        },
+        "win": {
+            "icon": "images/favicon.ico",
+            "target": [
+                "nsis",
+                "portable"
+            ]
+        }
+    }
 }

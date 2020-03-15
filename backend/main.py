@@ -1,5 +1,7 @@
 from warnings import simplefilter
 
+import numpy as np
+
 simplefilter(action='ignore', category=FutureWarning)
 
 import base64
@@ -51,6 +53,15 @@ class FantasticFilterPRC(object):
         self.size = (w, h)
         self.origin = img
         return True
+
+    def set_image_base64(self, encoded):
+        buffer = base64.b64decode(encoded)
+        np_arr = np.fromstring(buffer, np.uint8)
+        img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        h, w, _ = img.shape
+        self.size = (w, h)
+        self.origin = img
 
     def resize(self, size):
         self.size = tuple(map(lambda x: int(float(x)), str(size).split(",")))

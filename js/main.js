@@ -1,10 +1,18 @@
 const FF_DEFAULT_TITLE = "幻想濾鏡 Fantastic Filter";
+const path = require("path")
 const remote = require('electron').remote;
+const nativeImage = require('electron').nativeImage
+
+const { clipboard } = require('electron')
 const app = remote.app
 const { Menu, MenuItem } = remote;
 const fs = require('fs');
 const { ipcRenderer } = require('electron')
-const storage = require('electron-localstorage');
+const Store = require('electron-store');
+const root_dir = process.env.ELECTRON_ENV ? __dirname :  path.dirname(process.resourcesPath);
+//const root_dir =  __dirname;
+let image_url = "";
+const store = new Store();
 let client;
 const API = require("./js/api")
 var ipc = require("electron").ipcRenderer;
@@ -15,14 +23,38 @@ let models = [];
 
 API.start();
 client = global["client"]
-console.log(client)
 // For #1
 
 $(document).ready(function () {
     loadSettings();
+
+    function paste() {
+        const img = clipboard.readImage();
+        if (img) {
+            $(".image_preview").css({cursor:"wait", filter: 'grayscale(1)'});
+            setTimeout(function(){
+                let dataURL = img.toDataURL();
+                if (dataURL.length > 30) {
+                    set_image(dataURL, true);
+                } else {
+                    console.log("invalid Image")
+                    $(".image_preview").css({cursor:"auto", filter: 'unset'});
+                }
+            }, 100)
+        }
+    }
+
+    function copy() {
+        img = nativeImage.createFromDataURL(image_url);
+        clipboard.writeImage(img)
+    }
     const menu = new Menu()
-    menu.append(new MenuItem({ label: '複製', click() { console.log('TODO: copy image') } }))
-    menu.append(new MenuItem({ label: '貼上', click() { console.log('TODO: copy image') } }))
+    menu.append(new MenuItem({ label: '複製', click() {
+        copy()
+    } }))
+    menu.append(new MenuItem({ label: '貼上', click() {
+        paste();
+    } }))
     menu.append(new MenuItem({ label: '設定', click() { openSetting() } }))
 
     $(window).contextmenu((e) => {
@@ -31,13 +63,33 @@ $(document).ready(function () {
     })
 
     fs.readdir("./pretrained/", (err, files) => {
-        files.forEach(file => {
+        try {
+            files.forEach(file => {
             if (!(file[file.length - 1] == 'b' && file[file.length - 2] == 'p' && file[file.length - 3] == '.')) return;
-            var modelPath = __dirname + "/pretrained/" + file;
-            $("#model").append($('<option>', { value: modelPath, text: file.replace('.pb', '') }))
-        });
-        $("#model").append($('<option>', { value: 'OPEN_OTHER', text: '選擇其他模型..' }))
+//                var modelPath = __dirname + "/pretrained/" + file;
+                var modelPath = root_dir + "/pretrained/" + file;
+                $("#model").append($('<option>', { value: modelPath, text: file.replace('.pb', '') }))
+            });
+        } catch(e) {
+            console.log("pre-trained model dir not found!")
+        } finally {
+            $("#model").append($('<option>', { value: 'OPEN_OTHER', text: '選擇其他模型..' }));
+        }
+
     });
+
+
+    (function foo() {
+        client.invoke("loaded", "", (err, res) => {
+            if (err){
+                foo();
+            } else {
+                $("#init_loading").animate({opacity: 0}, 500);
+                setTimeout(()=>{$("#init_loading").hide()}, 501)
+            }
+        });
+    })();
+
     let originHeight = 1080;
     let originWidth = 1920;
     let previewHeight = $("#preview_wrapper").innerHeight() - 45;
@@ -51,31 +103,10 @@ $(document).ready(function () {
     setBG();
     $("#open_image").click(function () {
         enhanced = false;
-        $("#enhanced_image_wrapper img").css("opacity", 0);
         openFile("請選擇一張圖片..", [
             { name: '照片', extensions: ['jpg', 'png', 'gif'] }
         ], function (filePath) {
-            client.invoke("set_image", filePath, (error, res) => {
-                if (error) {
-                    alert("載入圖片錯誤！")
-                }
-                else {
-                    console.log(res)
-                }
-            })
-            console.log("open image: " + filePath);
-            var originImage = new Image();
-            originImage.onload = function () {
-                originHeight = originImage.height;
-                originWidth = originImage.width;
-                $("#origin_image_wrapper img").attr("src", originImage.src);
-                updateSize();
-                $("#width").val(originWidth)
-                $("#height").val(originHeight)
-
-            }
-            originImage.src = filePath;
-            imagePath = filePath;
+            set_image(filePath)
         });
     });
     $("#width").change(function () {
@@ -97,7 +128,7 @@ $(document).ready(function () {
         $("#width").val(width)
         $("#height").val(height)
         $("#height, #width").attr("disabled", true)
-        console.log(width + "," + height)
+
         client.invoke("resize", width + "," + height, function () {
             $("#height, #width").attr("disabled", false)
         })
@@ -134,9 +165,12 @@ $(document).ready(function () {
         client.invoke("enhance", null, function (error, res) {
             (function foo() {
                 client.invoke("get_enhanced_image", null, function (error, res) {
-                    if (error) {
+                    if (error || res == "failed") {
                         eModal.alert("出錯了！可能是圖片太大了，要不要縮小點呢？", "Hmm")
-                        reset()
+                        $("#image_enhancing_animation").animate({
+                            opacity: 0
+                        }, 500)
+                        if (error) reset()
                         return
                     }
                     if (!res) {
@@ -144,14 +178,13 @@ $(document).ready(function () {
                         return;
                     }
 
-                    const image_url = 'data:image/jpeg;base64,' + res;
+                    image_url = 'data:image/jpeg;base64,' + res;
                     enhanced = true;
                     const doneNotification = new Notification('處理完成！', {
                         body: '你的圖片已經成功增強囉～',
                         icon: 'images/favicon.png',
                         requireInteraction: true
                     })
-                    //TODO: sound.
 
                     $("#image_enhancing_animation").animate({
                         opacity: 0
@@ -175,9 +208,8 @@ $(document).ready(function () {
     }
 
     function updateSetting(item, value) {
-
-        console.log(item + ': ' + value)
-        storage.setItem('setting_' + item, value)
+        console.log(item + ": " + value)
+        store.set('setting_' + item, value)
         switch (item) {
             case 'system_border':
                 if (value) {
@@ -197,9 +229,8 @@ $(document).ready(function () {
         ]
         settingFlags.forEach(settingOrg => {
             setting = s(settingOrg);
-            var settingVal = storage.getItem(setting);
+            var settingVal = store.get(setting);
             var $elem = $("#" + setting);
-
             if (settingVal != null) {
                 updateSetting(settingOrg, settingVal);
                 switch ($elem.attr('type')) {
@@ -209,17 +240,18 @@ $(document).ready(function () {
                     default:
                         $("#" + setting).val(settingVal);
                 }
-                $elem.change(function () {
-                    switch ($elem.attr('type')) {
-                        case 'checkbox':
-                            updateSetting(settingOrg, $(this).is(":checked") == true);
-                            break;
-                        default:
-                            updateSetting(settingOrg, $(this).val());
-                    }
-
-                })
             }
+            $elem.change(function () {
+                switch ($elem.attr('type')) {
+                    case 'checkbox':
+                        updateSetting(settingOrg, $(this).is(":checked") == true);
+                        break;
+                    default:
+                        updateSetting(settingOrg, $(this).val());
+                }
+
+            })
+
         });
         function s(a) {
             return 'setting_' + a;
@@ -253,8 +285,8 @@ $(document).ready(function () {
         }
     })
 
-    $("#enhanced_image_wrapper img").mousedown(function () {
-        if (!enhanced) return;
+    $("#enhanced_image_wrapper img").mousedown(function (e) {
+        if (!enhanced || event.which == 3) return;
         $(this).animate({
             opacity: 0
         }, 200);
@@ -314,6 +346,57 @@ $(document).ready(function () {
     updateSize();
     $(window).resize(updateSize)
 
+
+    $('body').on("dragenter dragover", function (event) {
+        // 重写ondragover 和 ondragenter 使其可放置
+        event.preventDefault();
+    }).on("dragleave", function (event) {
+        event.preventDefault();
+    }).on("drop", function (event) {
+    // 调用 preventDefault() 来避免浏览器对数据的默认处理（drop 事件的默认行为是以链接形式打开）
+        event.preventDefault();
+        var file = event.originalEvent.dataTransfer.files[0];
+        set_image(file.path)
+        return false;
+    });
+
+
+    function set_image(file, base64) {
+        $(".image_preview").css({cursor:"wait", filter: 'grayscale(1)'});
+        const url = base64 ? "set_image_base64" : "set_image";
+        let data_url = ""
+        if (base64) {
+            data_url = file
+            file = file.substr(file.indexOf(",")+1)
+        }
+        client.invoke(url, file, (error, res) => {
+            $(".image_preview").css({cursor:"auto", filter: 'unset'});
+            if (error) {
+                alert("載入圖片錯誤！")
+            }
+            else {
+                $("#enhanced_image_wrapper img").css("opacity", 0);
+                enhanced = false
+            }
+        })
+        console.log("open image: " + file);
+        var originImage = new Image();
+        originImage.onload = function () {
+            originHeight = originImage.height;
+            originWidth = originImage.width;
+            resize(originHeight, originWidth)
+            $("#origin_image_wrapper img").attr("src", originImage.src);
+            updateSize();
+            $("#width").val(originWidth)
+            $("#height").val(originHeight)
+
+        }
+        originImage.src = base64 ? data_url : file;
+        imagePath = originImage.src;
+    }
+
+
+
     function reset() {
         modelPath = "";
         imagePath = "";
@@ -355,16 +438,27 @@ function loadModel(modelPath) {
         buttons: []
     });
     client.invoke("load_model", modelPath, (error, res) => {
-        setTimeout(eModal.close, 1000)
         if (error) {
+            setTimeout(eModal.close, 1000)
             console.log(error)
             alert("sth went wrong!")
         }
         else {
+            (function foo(){
+                client.invoke("is_model_loaded", "", (error, res) => {
+                    if(error) return;
+                    if (res === "processing") {
+                        setTimeout(foo, 100);
+                    } else if (res) {
+                        setTimeout(eModal.close, 1000);
+                    } else {
+                        alert("無法載入模型!");
+                    }
+                });
+            })();
 
         }
     })
-
 }
 
 function setWindowTitle(title) {
@@ -375,9 +469,40 @@ function setWindowTitle(title) {
 }
 
 
+(function(){
+    const KEYs = [
+        'ArrowUp',
+        'ArrowUp',
+        'ArrowDown',
+        'ArrowDown',
+        'ArrowLeft',
+        'ArrowRight',
+        'ArrowLeft',
+        'ArrowRight',
+        'KeyB',
+        'KeyA'
+    ]
+    var count = 0;
+    var lastHit = Date.now();
+    var timeout = 1000;
 
-const path = require('path')
+    window.addEventListener('keydown', (e)=> {
 
-let pyProc = null
-let pyPort = null
+    if ((Date.now() - lastHit) > timeout) count = 0;
+    lastHit = Date.now();
+        if (event.code != KEYs[count++]) {
+            count = 0;
+            return false;
+        }
+        event.preventDefault();
+        if (count == KEYs.length) {
+            count = 0;
+            remote.getCurrentWebContents().openDevTools()
+        }
+    });
+})();
 
+window.onbeforeunload = function(e) {
+    e.preventDefault()
+    alert()
+}

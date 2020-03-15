@@ -7,3 +7,5 @@ backend/build
 backend/dist/*
 .idea
 venv
+venv_gpu
+dist

@@ -30,6 +30,7 @@ body * {
 }
 
 #window_wrapper {
+    position: relative;
     max-height: 100vh;
     overflow: hidden;
 }
@@ -73,10 +74,23 @@ body * {
     -webkit-app-region: no-drag;
     margin-left: 2px;
 }
-
+/* loading */
+#init_loading {
+    position: absolute;
+    z-index: 9;
+    text-align: center;
+    padding-top: calc(50vh - 5rem);
+    font-size: 3rem;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,.9);
+}
 /* main */
 
 #main_wrapper {
+    position: relative;
     width: 100%;
     height: calc(100vh - 2.39rem);
 }

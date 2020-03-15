@@ -21,6 +21,7 @@
     <script src="./libs/emodal/emodal.min.js"></script>
     <script src="js/main.js"></script>
     <script>if (window.module) module = window.module;</script>
+    <title>幻想濾鏡 Fantastic Filter</title>
 </head>
 
 <body>
@@ -35,6 +36,7 @@
             </div>
         </div>
         <div id="main_wrapper" class="container-fluid">
+            <div id="init_loading">Fantastic Filter is starting...</div>
             <!-- toolbar -->
             <div class="row" id="toolbar_wrapper">
                 <div id="toolbar" class="col-12">
@@ -57,7 +59,7 @@
                             <input id="height" step=4 type="number" class="form-control" placeholder="高" />
                             <input id="width" step=4 type="number" class="form-control" placeholder="寬" />
                         </div>
-                        <button id="save" type="button" class="d-inline-flex btn btn-dark"><i class="fas fa-save"
+                        <button id="save" type="button" class=" btn btn-dark"><i class="fas fa-save"
                                 aria-hidden="true"></i> 儲存照片</button>
                     </div>
                 </div>
@@ -104,7 +106,7 @@
                     <div class="modal-body">
                         <div class="container-fluid">
                             <div class="row">
-                                <div class="col col-8">使用系統邊界<small class="text-warning">需要重起</small></div>
+                                <div class="col col-8">使用系統邊界<small class="text-warning">需要重啟</small></div>
                                 <div class="col col-4"><label class="switch">
                                         <input type="checkbox" id="setting_system_border">
                                         <span class="slider round"></span>

@@ -3,8 +3,43 @@ const {
     BrowserWindow,
 } = require('electron')
 const path = require('path')
-const storage = require('electron-localstorage');
+const Store = require('electron-store');
 const url = require('url')
+const ipc = require('electron').ipcMain;
+const child_process = require('child_process')
+const API_DEBUG = true & false;
+const API = require(__dirname + "/js/api")
+let can_close = false
+const store = new Store();
+
+
+ipc.on('start_backend', (event, pyPort) => {
+    if (API_DEBUG) {
+        pyPort = 9999
+    } else {
+        if (global['pyProc']) {
+            global['pyProc'].kill();
+        }
+        if (API.client) {
+
+            API.client.close();
+        }
+        global['pyProc'] = null;
+        let exec_file = process.platform == "win32" ? "main.exe" : "main";
+        const root_dir = process.env.ELECTRON_ENV ? __dirname :  path.dirname(process.resourcesPath);
+        console.log("ROOT_DIR: " + root_dir)
+        let script = path.join(root_dir, 'backend', 'dist', 'main', exec_file)
+        if (global['pyProc'] == null) {
+            global['pyProc'] = child_process.execFile(script, [pyPort,], function (err, stdout, stderr) {
+                // Node.js will invoke this callback when process terminates.
+                console.log(err)
+                console.error(stderr)
+                console.error(stdout);
+            });
+        }
+    }
+    console.log("start backend at tcp://127.0.0.1:" + pyPort)
+});
 
 app.on('ready', createWindow)
 
@@ -26,7 +61,7 @@ function createWindow() {
         width: 800,
         height: 500,
         icon: __dirname + '/images/favicon.png',
-        frame: storage.getItem("setting_system_border") == true,
+        frame: store.get("setting_system_border") == true,
         transparent: true,
         backgroundColor: "#00000000",
 //        'node-integration': true,
@@ -47,8 +82,20 @@ function createWindow() {
     // Open DevTools.
 //    win.webContents.openDevTools()
     // When Window Close.
-    win.on('closed', () => {
+    win.on('close', (event)=>{
+        win.webContents.send("stop_backend")
+        exitPyProc();
+        if (!can_close)
+            event.preventDefault();
+    })
+    win.on('closed', (event) => {
         win = null
+
+    })
+
+    ipc.on('close', ()=>{
+        can_close = true;
+        win.close()
     })
 
 }
@@ -56,8 +103,16 @@ function createWindow() {
 
 
 const exitPyProc = () => {
-    global['pyProc'] && global['pyProc'].kill()
-
+    win.webContents.send("stop_backend");
+    if (global['pyProc']) {
+    const { exec } = require("child_process");
+        try {
+            console.log("killing " + global['pyProc'].pid)
+            global['pyProc'].kill()
+        } catch (e) {
+            console.log("can't kill!")
+        }
+    }
 }
 
 app.on('will-quit', exitPyProc)
