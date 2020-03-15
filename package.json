@@ -10,7 +10,8 @@
     },
     "keywords": [
         "Fantastic",
-        "Filter"
+        "Filter",
+        "幻想濾鏡"
     ],
     "author": "Ray's Another World Studio",
     "license": "MIT",
@@ -54,6 +55,12 @@
                 "nsis",
                 "portable"
             ]
+        },
+        "linux": {
+            "target": [
+                "AppImage"
+            ],
+            "category": "Graphics"
         }
     }
 }

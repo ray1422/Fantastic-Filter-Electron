@@ -62,7 +62,7 @@ $(document).ready(function () {
         menu.popup({ window: remote.getCurrentWindow() })
     })
 
-    fs.readdir("./pretrained/", (err, files) => {
+    fs.readdir(root_dir + "/pretrained/", (err, files) => {
         try {
             files.forEach(file => {
             if (!(file[file.length - 1] == 'b' && file[file.length - 2] == 'p' && file[file.length - 3] == '.')) return;
