@@ -5,6 +5,8 @@ import cv2
 import numpy as np
 import tensorflow as tf
 
+from utils import cv_imread, cv_imwrite
+
 
 class Enhancer:
     def __init__(self, gpu=True):
@@ -44,14 +46,14 @@ class Enhancer:
                 config = tf.ConfigProto()
                 config.gpu_options.allow_growth = True
                 self._sess = tf.Session(graph=graph, config=config)
-                self._sess.graph.finalize()
+                # self._sess.graph.finalize()
 
             except Exception as e:
                 try:
                     if self._sess is not None:
                         self._sess.close()
                     print(e)
-                    
+
                 except Exception as e:
                     self._sess = None
                     print(e)
@@ -92,7 +94,7 @@ class Enhancer:
             save_path = file['save_path']
             denoise = file['denoise']
             denoise_after = file['denoise_after']
-            image = cv2.imread(path)
+            image = cv_imread(path)
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             try:
                 h, w, _ = image.shape
@@ -114,7 +116,7 @@ class Enhancer:
                     result_img = cv2.fastNlMeansDenoisingColored(result_img, None, 10, 10, 5, 5)
 
                 result_img = cv2.cvtColor(result_img, cv2.COLOR_RGB2BGR)
-                cv2.imwrite(save_path, result_img)
+                cv_imwrite(save_path, result_img)
                 self.success = True
 
             except Exception as e:
