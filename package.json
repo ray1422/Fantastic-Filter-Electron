@@ -1,6 +1,6 @@
 {
     "name": "fantastic-filter-electron",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "description": "跨平台的「幻想濾鏡」桌面應用實現，用以提昇手機夜拍照片的畫質。",
     "main": "index.js",
     "scripts": {
@@ -36,6 +36,7 @@
         "appId": "io.github.ray1422.fantastic_filter_electron",
         "productName": "Fantastic Filter Electron",
         "nsis": {
+            "license": "./EULA.html",
             "oneClick": false,
             "allowToChangeInstallationDirectory": true,
             "displayLanguageSelector": true
