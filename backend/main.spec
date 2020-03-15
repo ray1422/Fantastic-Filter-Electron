@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['main.py'],
-             pathex=['C:\\Users\\Ray\\workspace\\Fantastic-Filter-Electron\\backend'],
+             pathex=['/home/ray1422/workspace/Fantastic-Filter-Electron/backend'],
              binaries=[],
              datas=[],
              hiddenimports=[],

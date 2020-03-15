@@ -9,3 +9,4 @@ backend/dist/*
 venv
 venv_gpu
 dist
+package-lock.json
