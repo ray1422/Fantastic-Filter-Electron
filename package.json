@@ -5,7 +5,8 @@
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "electron . "
+        "start": "ELECTRON_ENV=1 electron . ",
+        "start_win": "set ELECTRON_ENV=1 && electron ."
     },
     "keywords": [
         "Fantastic",
